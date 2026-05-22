@@ -39,6 +39,8 @@ const el = {
   clearBtn: document.getElementById("clearBtn"),
   printBtn: document.getElementById("printBtn"),
   backToInputBtn: document.getElementById("backToInputBtn"),
+  addDirectColumnBtn: document.getElementById("addDirectColumnBtn"),
+  removeDirectColumnBtn: document.getElementById("removeDirectColumnBtn"),
   addLoadRowBtn: document.getElementById("addLoadRowBtn"),
   removeLoadRowBtn: document.getElementById("removeLoadRowBtn"),
   tabButtons: document.querySelectorAll(".tab-button"),
@@ -151,6 +153,65 @@ function markDataChanged() {
   }
 }
 
+function directRows() {
+  return [...el.directTable.querySelectorAll("tbody tr")];
+}
+
+function getDirectColumnCount() {
+  const headerCells = el.directTable.querySelectorAll("thead th");
+  return Math.max(0, headerCells.length - 2);
+}
+
+function updateDirectTableWidth() {
+  const baseWidth = 262;
+  const columnWidth = 86;
+  el.directTable.style.minWidth = `${baseWidth + getDirectColumnCount() * columnWidth}px`;
+}
+
+function renumberDirectColumns() {
+  [...el.directTable.querySelectorAll("thead th")]
+    .slice(2)
+    .forEach((cell, index) => {
+      cell.textContent = index + 1;
+    });
+  updateDirectTableWidth();
+}
+
+function addDirectColumn(values = {}) {
+  const headerRow = el.directTable.querySelector("thead tr");
+  const th = document.createElement("th");
+  th.textContent = getDirectColumnCount() + 1;
+  headerRow.appendChild(th);
+
+  directRows().forEach((row) => {
+    const key = row.dataset.key;
+    const input = document.createElement("input");
+    input.type = "number";
+    input.step = key === "d" ? "0.001" : "0.0001";
+    input.value = values[key] ?? "";
+
+    const cell = document.createElement("td");
+    cell.appendChild(input);
+    row.appendChild(cell);
+  });
+
+  renumberDirectColumns();
+}
+
+function removeDirectColumn() {
+  if (getDirectColumnCount() <= 1) return;
+
+  el.directTable.querySelector("thead tr").lastElementChild.remove();
+  directRows().forEach((row) => row.lastElementChild.remove());
+  renumberDirectColumns();
+}
+
+function setDirectColumnCount(count) {
+  while (getDirectColumnCount() < count) addDirectColumn();
+  while (getDirectColumnCount() > count) removeDirectColumn();
+  updateDirectTableWidth();
+}
+
 function setLoadRows(rows) {
   el.loadTableBody.innerHTML = "";
   rows.forEach((row, index) => addLoadRow(row, index + 1));
@@ -177,6 +238,7 @@ function loadSample() {
   el.gravity.value = sampleData.g;
   el.rulerU.value = sampleData.rulerU;
   el.micrometerU.value = sampleData.micrometerU;
+  setDirectColumnCount(sampleData.direct.L.length);
   Object.entries(sampleData.direct).forEach(([key, values]) => {
     const row = el.directTable.querySelector(`tr[data-key="${key}"]`);
     row.querySelectorAll("input").forEach((input, index) => {
@@ -227,8 +289,11 @@ function validateData(data) {
   if (!Number.isFinite(data.micrometerU) || data.micrometerU < 0) problems.push("螺旋测微器 B 类不确定度不能为负。");
 
   Object.entries(data.direct).forEach(([key, values]) => {
+    if (values.length === 0) {
+      problems.push(`${directLabels[key].name} 至少需要 1 次读数。`);
+    }
     if (values.some((value) => !Number.isFinite(value))) {
-      problems.push(`${directLabels[key].name} 的 6 次读数需要填写完整。`);
+      problems.push(`${directLabels[key].name} 的 ${values.length} 次读数需要填写完整。`);
     }
   });
 
@@ -594,6 +659,14 @@ el.printBtn.addEventListener("click", () => {
   if (resultReady) window.print();
 });
 el.backToInputBtn.addEventListener("click", () => switchView("inputPage"));
+el.addDirectColumnBtn.addEventListener("click", () => {
+  addDirectColumn();
+  markDataChanged();
+});
+el.removeDirectColumnBtn.addEventListener("click", () => {
+  removeDirectColumn();
+  markDataChanged();
+});
 el.addLoadRowBtn.addEventListener("click", () => {
   addLoadRow();
   markDataChanged();
