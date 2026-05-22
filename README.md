@@ -4,7 +4,7 @@
 
 在线访问地址：
 
-http://turtleneck.top/
+http://young-modulus-lab.turtleneck.top/
 
 ## 文件说明
 
@@ -12,7 +12,7 @@ http://turtleneck.top/
 - `style.css`：网页和打印样式。
 - `app.js`：数据处理、最小二乘拟合、不确定度计算和 Canvas 绘图逻辑。
 - `.nojekyll`：GitHub Pages 配置文件，用于按普通静态网页发布。
-- `CNAME`：GitHub Pages 自定义域名配置，当前域名为 `turtleneck.top`。
+- `CNAME`：GitHub Pages 自定义域名配置，当前域名为 `young-modulus-lab.turtleneck.top`。
 
 ## 使用方法
 
