@@ -11,7 +11,7 @@
     <div>
       <p class="eyebrow">Young's Modulus Lab</p>
       <h1>拉伸法测金属丝杨氏模量数据处理</h1>
-      <p class="subtitle">输入实验数据，自动完成平均值、最小二乘拟合、杨氏模量和不确定度传递。</p>
+      <p class="subtitle">先填写实验数据，再生成平均值、最小二乘拟合、杨氏模量和不确定度传递结果。</p>
     </div>
     <div class="header-actions">
       <button id="loadSampleBtn" type="button">载入示例数据</button>
@@ -20,11 +20,16 @@
     </div>
   </header>
 
+  <nav class="view-tabs" aria-label="页面切换">
+    <button id="inputTab" type="button" class="tab-button active" data-view-target="inputPage">数据填入</button>
+    <button id="resultTab" type="button" class="tab-button" data-view-target="resultPage">数据生成</button>
+  </nav>
+
   <main class="app-shell">
-    <section class="panel inputs-panel" aria-labelledby="inputTitle">
+    <section id="inputPage" class="panel inputs-panel view-page active" aria-labelledby="inputTitle">
       <div class="section-head">
         <h2 id="inputTitle">实验数据输入</h2>
-        <button id="calculateBtn" type="button" class="primary">计算</button>
+        <button id="calculateBtn" type="button" class="primary">生成结果</button>
       </div>
 
       <div class="settings-grid">
@@ -122,12 +127,19 @@
           <tbody></tbody>
         </table>
       </div>
+
+      <div class="form-footer">
+        <button id="calculateBottomBtn" type="button" class="primary large-action">生成结果</button>
+      </div>
     </section>
 
-    <section class="panel result-panel" aria-labelledby="resultTitle">
+    <section id="resultPage" class="panel result-panel view-page" aria-labelledby="resultTitle" hidden>
       <div class="section-head">
         <h2 id="resultTitle">处理结果</h2>
-        <span id="statusText" class="status">等待计算</span>
+        <div class="result-actions">
+          <span id="statusText" class="status">等待计算</span>
+          <button id="backToInputBtn" type="button" class="secondary">返回修改数据</button>
+        </div>
       </div>
 
       <div class="cards">

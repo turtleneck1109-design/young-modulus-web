@@ -34,11 +34,16 @@ const el = {
   directTable: document.getElementById("directTable"),
   loadTableBody: document.querySelector("#loadTable tbody"),
   calculateBtn: document.getElementById("calculateBtn"),
+  calculateBottomBtn: document.getElementById("calculateBottomBtn"),
   loadSampleBtn: document.getElementById("loadSampleBtn"),
   clearBtn: document.getElementById("clearBtn"),
   printBtn: document.getElementById("printBtn"),
+  backToInputBtn: document.getElementById("backToInputBtn"),
   addLoadRowBtn: document.getElementById("addLoadRowBtn"),
   removeLoadRowBtn: document.getElementById("removeLoadRowBtn"),
+  tabButtons: document.querySelectorAll(".tab-button"),
+  inputPage: document.getElementById("inputPage"),
+  resultPage: document.getElementById("resultPage"),
   status: document.getElementById("statusText"),
   eValue: document.getElementById("eValue"),
   uEValue: document.getElementById("uEValue"),
@@ -126,6 +131,26 @@ function formatSci(value, digits = 4) {
   return Number(value).toExponential(digits);
 }
 
+function switchView(viewId) {
+  [el.inputPage, el.resultPage].forEach((page) => {
+    const isActive = page.id === viewId;
+    page.hidden = !isActive;
+    page.classList.toggle("active", isActive);
+  });
+
+  el.tabButtons.forEach((button) => {
+    const isActive = button.dataset.viewTarget === viewId;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+}
+
+function markDataChanged() {
+  if (el.status.textContent === "已计算") {
+    el.status.textContent = "数据已修改，请重新生成结果";
+  }
+}
+
 function setLoadRows(rows) {
   el.loadTableBody.innerHTML = "";
   rows.forEach((row, index) => addLoadRow(row, index + 1));
@@ -159,7 +184,8 @@ function loadSample() {
     });
   });
   setLoadRows(sampleData.loads);
-  calculate();
+  clearOutputs("示例数据已载入，点击生成结果");
+  switchView("inputPage");
 }
 
 function clearInputs() {
@@ -168,6 +194,7 @@ function clearInputs() {
   });
   setLoadRows(Array.from({ length: 8 }, () => ({ mass: "", add: "", remove: "" })));
   clearOutputs("等待输入");
+  switchView("inputPage");
 }
 
 function readInputs() {
@@ -541,32 +568,50 @@ function calculate() {
   if (problems.length) {
     clearOutputs("数据有误");
     showError(problems[0]);
-    return;
+    switchView("resultPage");
+    return false;
   }
 
   try {
     const result = analyze(data);
     renderResults(result);
+    switchView("resultPage");
+    return true;
   } catch (error) {
     clearOutputs("数据有误");
     showError(error.message);
+    switchView("resultPage");
+    return false;
   }
 }
 
 el.calculateBtn.addEventListener("click", calculate);
+el.calculateBottomBtn.addEventListener("click", calculate);
 el.loadSampleBtn.addEventListener("click", loadSample);
 el.clearBtn.addEventListener("click", clearInputs);
-el.printBtn.addEventListener("click", () => window.print());
-el.addLoadRowBtn.addEventListener("click", () => addLoadRow());
+el.printBtn.addEventListener("click", () => {
+  const resultReady = !el.resultPage.hidden || calculate();
+  if (resultReady) window.print();
+});
+el.backToInputBtn.addEventListener("click", () => switchView("inputPage"));
+el.addLoadRowBtn.addEventListener("click", () => {
+  addLoadRow();
+  markDataChanged();
+});
 el.removeLoadRowBtn.addEventListener("click", () => {
   if (el.loadTableBody.children.length > 3) {
     el.loadTableBody.lastElementChild.remove();
     renumberLoadRows();
+    markDataChanged();
   }
 });
 
 document.addEventListener("input", (event) => {
-  if (event.target.matches("input")) calculate();
+  if (event.target.matches("input")) markDataChanged();
+});
+
+el.tabButtons.forEach((button) => {
+  button.addEventListener("click", () => switchView(button.dataset.viewTarget));
 });
 
 loadSample();
