@@ -372,10 +372,17 @@ canvas {
   background: #fff3f1;
 }
 
+@page {
+  size: A4 portrait;
+  margin: 9mm;
+}
+
 @media print {
   body {
     min-width: 0;
     background: #fff;
+    font-size: 8pt;
+    line-height: 1.25;
   }
 
   .app-header,
@@ -383,7 +390,8 @@ canvas {
   .inputs-panel,
   .section-head button,
   .subsection-head,
-  .status {
+  .status,
+  .result-actions {
     display: none !important;
   }
 
@@ -403,16 +411,84 @@ canvas {
     padding: 0;
   }
 
+  .result-panel .section-head {
+    display: block;
+    margin-bottom: 2.5mm;
+  }
+
+  .result-panel h2 {
+    font-size: 13pt;
+    line-height: 1.2;
+  }
+
   .cards {
-    grid-template-columns: repeat(2, 1fr);
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 2mm !important;
+    margin-bottom: 3mm;
+  }
+
+  .result-card {
+    min-height: 0;
+    border-radius: 2mm;
+    padding: 2mm 2.2mm;
+  }
+
+  .result-card span {
+    margin-bottom: 1mm;
+    font-size: 7.2pt;
+  }
+
+  .result-card strong {
+    font-size: 9.2pt;
+    line-height: 1.2;
+  }
+
+  .chart-frame {
+    border-radius: 2mm;
+    padding: 1.5mm;
+    margin-bottom: 3mm;
+  }
+
+  .chart-frame canvas {
+    width: auto !important;
+    max-width: 100%;
+    height: 75mm !important;
+    margin: 0 auto;
+    aspect-ratio: auto;
   }
 
   .output-grid {
-    grid-template-columns: 1fr;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 2.5mm 3mm !important;
+    margin-top: 0;
+  }
+
+  .output-grid h3 {
+    margin: 0 0 1mm;
+    font-size: 8.4pt;
+    line-height: 1.2;
+  }
+
+  .table-wrap {
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .output-table {
+    font-size: 6.8pt;
+    line-height: 1.1;
+  }
+
+  .output-table th,
+  .output-table td {
+    padding: 0.65mm 0.6mm;
   }
 
   .chart-frame,
   .result-card,
+  .output-grid section,
   table {
     break-inside: avoid;
   }
